@@ -1,6 +1,6 @@
 import { Client } from "discord.js";
 import bot from "./config/bot.js";
-import { handleMessage } from "./handlers/messageHandler.js";
+import { handleMessage } from "./src/discord-msg.js";
 
 const client = new Client({
   intents: ["Guilds", "GuildMembers", "GuildMessages", "MessageContent"],
