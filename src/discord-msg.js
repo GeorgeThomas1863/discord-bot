@@ -6,15 +6,15 @@ export const handleMessage = async (inputObj, client) => {
   const { author, content, channelId, channel, mentions } = inputObj;
   const { CHANNELS, PREFIX } = CONFIG;
 
-  console.log("FIRST OBJ");
-  console.log(inputObj);
-
   // Early returns for filtering
   if (author.bot) return null;
   if (!CHANNELS.includes(channelId)) return null;
-  if (!content.startsWith(PREFIX) && !mentions.users.has(client.user.id)) return null;
 
-  console.log("SECOND OBJ");
+  const firstChar = content.trim().charAt(0);
+  const botMention = mentions.users.has(client.user.id) || null;
+  if (firstChar !== PREFIX && !botMention) return null;
+
+  console.log("FIRST OBJ");
   console.log(inputObj);
 
   const typingInterval = startTyping(channel);

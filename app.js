@@ -1,3 +1,8 @@
+//TODO:
+
+//KEEP GOIING THROUGH THE FILE AND REDEFINING THINGS
+//FIGURE OUT OPENAI API ACCOUNT
+
 import { Client } from "discord.js";
 import { DISCORD_TOKEN } from "./config/bot.js";
 import { handleMessage } from "./src/discord-msg.js";
