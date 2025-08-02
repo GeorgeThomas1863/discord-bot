@@ -1,8 +1,8 @@
 import { OpenAI } from "openai";
-import bot from "../config/bot.js";
+import { OPENAI_KEY } from "../config/bot.js";
 
 const openai = new OpenAI({
-  apiKey: bot.OPENAI_KEY,
+  apiKey: OPENAI_KEY,
 });
 
 export const getChatResponse = async (conversation) => {

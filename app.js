@@ -1,5 +1,5 @@
 import { Client } from "discord.js";
-import bot from "./config/bot.js";
+import { DISCORD_TOKEN } from "./config/bot.js";
 import { handleMessage } from "./src/discord-msg.js";
 
 const client = new Client({
@@ -12,4 +12,4 @@ client.on("ready", () => {
 
 client.on("messageCreate", (message) => handleMessage(message, client));
 
-client.login(bot.TOKEN);
+client.login(DISCORD_TOKEN);
