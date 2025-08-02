@@ -1,23 +1,28 @@
-// import CHANNELS from "../config/channels.js";
 import CONFIG from "../config/config.js";
-import { getChatResponse, defineSystemPrompt } from "./api.js";
+import { sendToOpenAI, defineSystemPrompt } from "./api.js";
 import { startTyping, stopTyping } from "./util.js";
 
-export const handleMessage = async (inputParams, client) => {
-  const { author, content, channelId, channel, mentions } = inputParams;
+export const handleMessage = async (inputObj, client) => {
+  const { author, content, channelId, channel, mentions } = inputObj;
   const { CHANNELS, PREFIX } = CONFIG;
 
+  console.log("FIRST OBJ");
+  console.log(inputObj);
+
   // Early returns for filtering
-  if (author.bot) return;
-  if (!content.startsWith(PREFIX)) return;
-  if (!CHANNELS.includes(channelId) && !mentions.users.has(client.user.id)) return;
+  if (author.bot) return null;
+  if (!CHANNELS.includes(channelId)) return null;
+  if (!content.startsWith(PREFIX) && !mentions.users.has(client.user.id)) return null;
+
+  console.log("SECOND OBJ");
+  console.log(inputObj);
 
   const typingInterval = startTyping(channel);
 
   try {
     const convoArray = await buildConvoArray(channel, client);
-    const chatResponse = await getChatResponse(convoArray);
-    await sendMessage(chatResponse, inputParams);
+    const chatResponse = await sendToOpenAI(convoArray);
+    await sendMessage(chatResponse, inputObj);
   } catch (error) {
     console.error("Error handling message:", error);
     await message.reply("Sorry, I encountered an error processing your request.");

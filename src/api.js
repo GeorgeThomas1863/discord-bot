@@ -5,14 +5,14 @@ const openai = new OpenAI({
   apiKey: OPENAI_KEY,
 });
 
-export const getChatResponse = async (conversation) => {
-  const openAIParams = {
+export const sendToOpenAI = async (inputArray) => {
+  const params = {
     model: "gpt-4",
-    messages: conversation,
+    messages: inputArray,
   };
 
   try {
-    const res = await openai.chat.completions.create(openAIParams);
+    const res = await openai.chat.completions.create(params);
     return res;
   } catch (e) {
     console.error("OpenAI API Error:", e);
