@@ -1,6 +1,6 @@
 import CONFIG from "../config/config.js";
 import { sendToOpenAI, defineSystemPrompt } from "./api.js";
-import { startTyping, stopTyping } from "./util.js";
+import { startTyping, stopTyping, fixUsername } from "./util.js";
 
 export const handleMessage = async (inputObj, client) => {
   const { author, content, channelId, channel, mentions } = inputObj;
@@ -14,15 +14,16 @@ export const handleMessage = async (inputObj, client) => {
   const botMention = mentions.users.has(client.user.id) || null;
   if (firstChar !== PREFIX && !botMention) return null;
 
-  console.log("FIRST OBJ");
-  console.log(inputObj);
-
   const typingInterval = startTyping(channel);
 
   try {
     const convoArray = await buildConvoArray(channel, client);
-    const chatResponse = await sendToOpenAI(convoArray);
-    await sendMessage(chatResponse, inputObj);
+    // console.log("CONVO ARRAY");
+    // console.log(convoArray);
+    const aiResponseObj = await sendToOpenAI(convoArray);
+    console.log("AI RESPONSE OBJ");
+    console.log(aiResponseObj);
+    // await sendDiscordMessage(aiMessage, inputObj);
   } catch (error) {
     console.error("Error handling message:", error);
     await message.reply("Sorry, I encountered an error processing your request.");
@@ -46,7 +47,7 @@ export const buildConvoArray = async (channel, client) => {
 
     if (author.id !== client.user.id && !content.startsWith(PREFIX)) continue;
 
-    const username = sanitizeUsername(author.username);
+    const username = fixUsername(author.username);
     const role = author.id === client.user.id ? "assistant" : "user";
     const convoObj = {
       role: role,
@@ -60,7 +61,8 @@ export const buildConvoArray = async (channel, client) => {
   return convoArray;
 };
 
-export const sendMessage = async (response, message) => {
+//chunks the message into 2000 character chunks
+export const sendDiscordMessage = async (response, inputObj) => {
   const responseMessage = response.choices[0].message.content;
 
   for (let i = 0; i < responseMessage.length; i += CHUNK_SIZE_LIMIT) {

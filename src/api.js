@@ -15,7 +15,8 @@ export const sendToOpenAI = async (inputArray) => {
     const res = await openai.chat.completions.create(params);
     return res;
   } catch (e) {
-    console.error("OpenAI API Error:", e);
+    console.error("OpenAI API Error:", e.message);
+    if (e.status === 429) return { error: "SAM ALTMAN WANT HIS MONEY (George didn't pay his API bill)" };
     throw new Error("Failed to get response from OpenAI");
   }
 };
