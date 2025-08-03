@@ -21,7 +21,7 @@ export const sendToOpenAI = async (inputArray) => {
     return aiMessage;
   } catch (e) {
     console.error("OpenAI API Error:", e.message);
-    if (e.status === 429) return { error: "SAM ALTMAN WANT HIS MONEY (George didn't pay his API bill)" };
+    if (e.status === 429) return "SAM ALTMAN WANT HIS MONEY (George didn't pay his API bill)";
     throw new Error("Failed to get response from OpenAI");
   }
 };
@@ -31,7 +31,7 @@ export const defineSystemPrompt = async () => {
   const systemPrompt = [
     {
       role: "system",
-      content: "Please provide a response to the following message or messages. Please review all of the content provided and respond with a detailed reply.",
+      content: "Please provide a response to the following message or messages. Please review all of the content provided and respond with a detailed and CONCISE reply.",
     },
   ];
 
