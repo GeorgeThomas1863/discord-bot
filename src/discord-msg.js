@@ -18,8 +18,8 @@ export const handleMessage = async (inputObj, client) => {
 
   try {
     const convoArray = await buildConvoArray(channel, client);
-    // console.log("CONVO ARRAY");
-    // console.log(convoArray);
+    console.log("CONVO ARRAY");
+    console.log(convoArray);
     const aiResponseObj = await sendToOpenAI(convoArray);
     console.log("AI RESPONSE OBJ");
     console.log(aiResponseObj);
