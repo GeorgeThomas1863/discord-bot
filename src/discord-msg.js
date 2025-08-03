@@ -6,6 +6,9 @@ export const handleMessage = async (msgObj, client) => {
   const { author, content, channelId, channel, mentions } = msgObj;
   const { CHANNELS, PREFIX } = CONFIG;
 
+  // console.log("MESSAGE OBJ");
+  // console.log(msgObj);
+
   // Early returns for filtering
   if (author.bot) return null;
   if (!CHANNELS.includes(channelId)) return null;
