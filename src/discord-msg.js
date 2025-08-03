@@ -2,8 +2,8 @@ import CONFIG from "../config/config.js";
 import { sendToOpenAI, defineSystemPrompt } from "./api.js";
 import { startTyping, stopTyping, fixUsername } from "./util.js";
 
-export const handleMessage = async (inputObj, client) => {
-  const { author, content, channelId, channel, mentions } = inputObj;
+export const handleMessage = async (msgObj, client) => {
+  const { author, content, channelId, channel, mentions } = msgObj;
   const { CHANNELS, PREFIX } = CONFIG;
 
   // Early returns for filtering
@@ -18,15 +18,17 @@ export const handleMessage = async (inputObj, client) => {
 
   try {
     const convoArray = await buildConvoArray(channel, client);
-    console.log("CONVO ARRAY");
-    console.log(convoArray);
-    const aiResponseObj = await sendToOpenAI(convoArray);
-    console.log("AI RESPONSE OBJ");
-    console.log(aiResponseObj);
-    // await sendDiscordMessage(aiMessage, inputObj);
+    // console.log("CONVO ARRAY");
+    // console.log(convoArray);
+    const aiMessage = await sendToOpenAI(convoArray);
+
+    // console.log("AI MESSAGE");
+    // console.log(aiMessage);
+
+    await sendDiscordMessage(aiMessage, msgObj);
   } catch (error) {
     console.error("Error handling message:", error);
-    await message.reply("Sorry, I encountered an error processing your request.");
+    await msgObj.reply("Sorry, I encountered an error processing your request.");
   } finally {
     stopTyping(typingInterval);
   }
@@ -47,7 +49,7 @@ export const buildConvoArray = async (channel, client) => {
 
     if (author.id !== client.user.id && !content.startsWith(PREFIX)) continue;
 
-    const username = fixUsername(author.username);
+    const username = await fixUsername(author.username);
     const role = author.id === client.user.id ? "assistant" : "user";
     const convoObj = {
       role: role,
@@ -62,11 +64,12 @@ export const buildConvoArray = async (channel, client) => {
 };
 
 //chunks the message into 2000 character chunks
-export const sendDiscordMessage = async (response, inputObj) => {
-  const responseMessage = response.choices[0].message.content;
+// export const sendDiscordMessage = async (message, inputObj) => {
+export const sendDiscordMessage = async (aiMessage, msgObj) => {
+  const { CHUNK_SIZE_LIMIT } = CONFIG;
 
-  for (let i = 0; i < responseMessage.length; i += CHUNK_SIZE_LIMIT) {
-    const chunk = responseMessage.substring(i, i + CHUNK_SIZE_LIMIT);
-    await message.reply(chunk);
+  for (let i = 0; i < aiMessage.length; i += CHUNK_SIZE_LIMIT) {
+    const chunk = aiMessage.substring(i, i + CHUNK_SIZE_LIMIT);
+    await msgObj.reply(chunk);
   }
 };
