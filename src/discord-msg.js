@@ -3,19 +3,15 @@ import { sendToOpenAI, defineSystemPrompt } from "./api.js";
 import { startTyping, stopTyping, fixUsername } from "./util.js";
 
 export const handleMessage = async (msgObj, client) => {
-  const { author, content, channelId, channel, mentions } = msgObj;
-  const { CHANNELS, PREFIX } = CONFIG;
+  const { channel } = msgObj;
 
   // console.log("MESSAGE OBJ");
   // console.log(msgObj);
 
-  // Early returns for filtering
-  if (author.bot) return null;
-  if (!CHANNELS.includes(channelId)) return null;
+  const msgIgnore = await checkMsgIgnore(msgObj, client);
+  if (!msgIgnore) return null;
 
-  const firstChar = content.trim().charAt(0);
-  const botMention = mentions.users.has(client.user.id) || null;
-  if (firstChar !== PREFIX && !botMention) return null;
+  // Early returns for filtering
 
   const typingInterval = startTyping(channel);
 
@@ -37,6 +33,20 @@ export const handleMessage = async (msgObj, client) => {
   }
 };
 
+export const checkMsgIgnore = async (msgObj, client) => {
+  const { author, content, channelId, mentions } = msgObj;
+  const { CHANNELS, PREFIX } = CONFIG;
+
+  // if (author.bot) return null;
+  if (!CHANNELS.includes(channelId)) return null;
+
+  const firstChar = content.trim().charAt(0);
+  const botMention = mentions.users.has(client.user.id) || null;
+  if (firstChar !== PREFIX && !botMention) return null;
+
+  return true;
+};
+
 export const buildConvoArray = async (channel, client) => {
   const { PREFIX } = CONFIG;
 
@@ -48,7 +58,11 @@ export const buildConvoArray = async (channel, client) => {
 
   for (let i = 0; i < messagesArray.length; i++) {
     const messageObj = messagesArray[i];
-    const { author, content } = messageObj;
+    const { author, content, createdTimestamp } = messageObj;
+
+    const timeCheck = Date.now() - 15 * 60 * 1000; // 15 min ago
+    // const timeCheck = Date.now() - 1 * 60 * 1000; // 1 min ago
+    if (createdTimestamp < timeCheck) continue;
 
     if (author.id !== client.user.id && !content.startsWith(PREFIX)) continue;
 
