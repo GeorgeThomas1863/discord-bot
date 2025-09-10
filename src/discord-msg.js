@@ -86,7 +86,7 @@ export const sendDiscordMessage = async (aiMessage, msgObj) => {
   const { CHUNK_SIZE_LIMIT } = CONFIG;
 
   for (let i = 0; i < aiMessage.length; i += CHUNK_SIZE_LIMIT) {
-    const chunk = "^" + aiMessage.substring(i, i + CHUNK_SIZE_LIMIT);
+    const chunk = aiMessage.substring(i, i + CHUNK_SIZE_LIMIT);
     await msgObj.reply(chunk);
   }
 };
