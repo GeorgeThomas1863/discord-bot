@@ -1,6 +1,6 @@
 import CONFIG from "../config/config.js";
-import { sendToOpenAI, defineSystemPrompt } from "./api.js";
-import { startTyping, stopTyping, fixUsername } from "./util.js";
+import { sendToOpenAI } from "./api.js";
+import { startTyping, stopTyping, fixUsername, defineSystemPrompt } from "./util.js";
 
 export const handleMessage = async (msgObj, client) => {
   const { channel } = msgObj;
@@ -34,7 +34,7 @@ export const handleMessage = async (msgObj, client) => {
 };
 
 export const checkMsgIgnore = async (msgObj, client) => {
-  const { author, content, channelId, mentions } = msgObj;
+  const { content, channelId, mentions } = msgObj;
   const { CHANNELS, PREFIX } = CONFIG;
 
   // if (author.bot) return null;
