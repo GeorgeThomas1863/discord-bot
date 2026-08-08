@@ -1,0 +1,24 @@
+# Dependencies (reinstalled inside the image)
+node_modules/
+
+# Secrets
+.env
+.env.*
+
+# Git
+.git/
+.gitignore
+
+# Docker (not needed inside the image)
+Dockerfile
+.dockerignore
+
+# Logs
+logs/
+*.log
+
+# Tooling / local state
+.remember/
+.claude/
+.vscode/
+.npm/
