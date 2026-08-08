@@ -15,7 +15,7 @@ If you make a mistake and the user points it out or corrects you, please make no
 
 A Discord bot that integrates with OpenAI's chat completions API to provide conversational AI
 responses in configured Discord channels. Built with discord.js v14 (ESM) and the OpenAI Node
-SDK v5. Model is configurable via the `MODEL` env var (defaults to `gpt-4o`).
+SDK v7. Model is configurable via the `MODEL` env var (defaults to `gpt-4o`).
 
 ## Quick Start
 
@@ -44,7 +44,7 @@ All config comes from a `.env` file in the project root, loaded by `dotenv` in `
 
 - `DISCORD_TOKEN` — Discord bot token (required)
 - `OPENAI_KEY` — OpenAI API key (required)
-- `CHANNELS` — Comma-separated channel IDs the bot listens in
+- `CHANNEL_1`, `CHANNEL_2`, … — One whitelisted channel ID per numbered var (pattern `CHANNEL_<n>`)
 - `PREFIX` — Command prefix (default `!`)
 - `MODEL` — OpenAI model (default `gpt-4o`)
 - `CHUNK_SIZE_LIMIT` — Discord message limit (default `2000`)
@@ -52,7 +52,7 @@ All config comes from a `.env` file in the project root, loaded by `dotenv` in `
 
 ## Key Behaviors
 
-- Bot responds only in whitelisted `CHANNELS`, and only to prefixed messages or @mentions
+- Bot responds only in whitelisted channels (`CHANNEL_<n>` env vars), and only to prefixed messages or @mentions
 - Builds a 10-message conversation history (last 15 minutes) as context for each API call
 - Chunks AI responses into ≤2000 char Discord messages
 - Shows typing indicator while processing; clears it on completion or error
@@ -68,12 +68,8 @@ All config comes from a `.env` file in the project root, loaded by `dotenv` in `
 
 ## Gotchas
 
-<<<<<<< HEAD
-- Uses **discord.js v14** — the ready event name is `"clientReady"` (v14.16+ alias; `"ready"` is deprecated in v15)
-=======
-- Uses **discord.js v13** (not v14) — the ready event name is `"ready"` (v13 internally calls it `CLIENT_READY` but emits the string `"ready"`, NOT `"clientReady"`)
->>>>>>> bbd65388af7042d35281b335ab83883d35358878
+- Uses **discord.js v14** — app.js uses the `Events` enum (`Events.ClientReady`, `Events.MessageCreate`) and `GatewayIntentBits` (not v13's `Intents.FLAGS`)
 - Package is `"type": "module"` — all files use ESM (`import`/`export`), not CommonJS
 - `.env` is gitignored and must be created manually — there is no `.env.example` in the repo
-- OpenAI SDK is v5 — API surface differs from v3/v4 (uses `openai.chat.completions.create`)
+- OpenAI SDK is v7 — API surface same as v5 for our usage (`openai.chat.completions.create`); requires Node 22+
 - System prompt lives in `src/util.js` (`defineSystemPrompt`) — a commented alternate "argument mode" prompt is also there

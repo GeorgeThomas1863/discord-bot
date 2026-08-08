@@ -1,23 +1,27 @@
 //keep testing
 
 import 'dotenv/config';
-import { Client, Intents } from "discord.js";
+import { Client, Events, GatewayIntentBits, Partials } from "discord.js";
 import { handleMessage } from "./src/discord-msg.js";
 
 const client = new Client({
   intents: [
-    Intents.FLAGS.GUILDS,
-    Intents.FLAGS.GUILD_MEMBERS,
-    Intents.FLAGS.GUILD_MESSAGES,
-    Intents.FLAGS.MESSAGE_CONTENT,
+    GatewayIntentBits.Guilds,
+    GatewayIntentBits.GuildMembers,
+    GatewayIntentBits.GuildMessages,
+    GatewayIntentBits.MessageContent,
+    GatewayIntentBits.DirectMessages,
   ],
+  // DM channels never emit CHANNEL_CREATE, so DM messageCreate events are
+  // dropped unless the channel can arrive as a partial
+  partials: [Partials.Channel],
 });
 
-client.once("ready", () => {
+client.once(Events.ClientReady, () => {
   console.log(`${client.user.tag} is now online!`);
 });
 
-client.on("messageCreate", (message) => handleMessage(message, client));
+client.on(Events.MessageCreate, (message) => handleMessage(message, client));
 
 client.login(process.env.DISCORD_TOKEN).catch((err) => {
   console.error("Failed to login:", err.message);

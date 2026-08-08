@@ -6,6 +6,7 @@ config/
 
 .claude/pics/
 .claude/.tmp/
+settings.local.json
 
 # logs
 logs
