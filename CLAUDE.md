@@ -68,7 +68,11 @@ All config comes from a `.env` file in the project root, loaded by `dotenv` in `
 
 ## Gotchas
 
+<<<<<<< HEAD
 - Uses **discord.js v14** — the ready event name is `"clientReady"` (v14.16+ alias; `"ready"` is deprecated in v15)
+=======
+- Uses **discord.js v13** (not v14) — the ready event name is `"ready"` (v13 internally calls it `CLIENT_READY` but emits the string `"ready"`, NOT `"clientReady"`)
+>>>>>>> bbd65388af7042d35281b335ab83883d35358878
 - Package is `"type": "module"` — all files use ESM (`import`/`export`), not CommonJS
 - `.env` is gitignored and must be created manually — there is no `.env.example` in the repo
 - OpenAI SDK is v5 — API surface differs from v3/v4 (uses `openai.chat.completions.create`)
