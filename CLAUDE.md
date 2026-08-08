@@ -13,14 +13,16 @@ If you make a mistake and the user points it out or corrects you, please make no
 
 # discord-bot-openai-js
 
-A Discord bot that integrates with OpenAI's GPT-4 API to provide conversational AI responses
-in configured Discord channels. Built with discord.js v13 (ESM) and the OpenAI Node SDK v5.
+A Discord bot that integrates with OpenAI's chat completions API to provide conversational AI
+responses in configured Discord channels. Built with discord.js v14 (ESM) and the OpenAI Node
+SDK v5. Model is configurable via the `MODEL` env var (defaults to `gpt-4o`).
 
 ## Quick Start
 
 ```bash
 npm install
 npm start        # runs: nodemon app.js
+npm test         # runs: vitest run (fully mocked — no network, no tokens needed)
 ```
 
 ## Architecture
@@ -28,45 +30,46 @@ npm start        # runs: nodemon app.js
 ```
 app.js               # Entry point — Discord client init, event wiring
 src/
-  discord-msg.js     # Message filtering, conversation context builder, typing indicator
+  discord-msg.js     # Message filtering, conversation context builder, response chunking
   api.js             # OpenAI API call (sendToOpenAI)
-  util.js            # Utility helpers
-config/              # NOT in repo — cloned via setup-config.sh
-  bot.js             # Exports DISCORD_TOKEN, OPENAI_KEY
-  config.js          # Exports CONFIG: { CHANNELS, PREFIX, CHUNK_SIZE_LIMIT, TYPING_INTERVAL }
+  util.js            # Username sanitizer, typing indicator, system prompt
+tests/               # Vitest suite — mocks discord.js and openai entirely
+vitest.config.js     # Vitest config (node environment)
+.env                 # NOT in repo (gitignored) — all config lives here, loaded via dotenv
 ```
 
 ## Configuration
 
-Config is stored in a **separate private git repo**, cloned into `config/`:
+All config comes from a `.env` file in the project root, loaded by `dotenv` in `app.js`:
 
-```bash
-bash setup-config.sh <your-config-repo-url>
-```
-
-Required exports from `config/bot.js`:
-- `DISCORD_TOKEN` — Discord bot token
-- `OPENAI_KEY` — OpenAI API key
-
-Required default export from `config/config.js`:
-- `CHANNELS` — Array of channel IDs the bot listens in
-- `PREFIX` — Command prefix (e.g., `"!"`)
-- `CHUNK_SIZE_LIMIT` — Discord message limit (2000)
-- `TYPING_INTERVAL` — Typing indicator interval in ms
+- `DISCORD_TOKEN` — Discord bot token (required)
+- `OPENAI_KEY` — OpenAI API key (required)
+- `CHANNELS` — Comma-separated channel IDs the bot listens in
+- `PREFIX` — Command prefix (default `!`)
+- `MODEL` — OpenAI model (default `gpt-4o`)
+- `CHUNK_SIZE_LIMIT` — Discord message limit (default `2000`)
+- `TYPING_INTERVAL` — Typing indicator interval in ms (default `5000`)
 
 ## Key Behaviors
 
-- Bot responds only in whitelisted `CHANNELS` or when @mentioned
-- Builds a 10-message conversation history (last 15 minutes) as context for each GPT-4 call
-- Chunks GPT-4 responses into ≤2000 char Discord messages
+- Bot responds only in whitelisted `CHANNELS`, and only to prefixed messages or @mentions
+- Builds a 10-message conversation history (last 15 minutes) as context for each API call
+- Chunks AI responses into ≤2000 char Discord messages
 - Shows typing indicator while processing; clears it on completion or error
 - Usernames are sanitized (spaces → underscores, special chars stripped) for OpenAI compat
 - 429 (rate limit) errors return a friendly humorous message instead of throwing
 
+## Testing
+
+- `npm test` runs 30 vitest tests across `tests/` — all external calls (Discord, OpenAI) are
+  mocked, so the suite is safe to run offline with no `.env`
+- There is no automated E2E test — a live check means running `node app.js` (bot goes online
+  in real channels) and sending a prefixed message in a whitelisted channel (costs one API call)
+
 ## Gotchas
 
-- Uses **discord.js v13** (not v14) — the event name is `"clientReady"`, not `"ready"`
+- Uses **discord.js v14** — the ready event name is `"clientReady"` (v14.16+ alias; `"ready"` is deprecated in v15)
 - Package is `"type": "module"` — all files use ESM (`import`/`export`), not CommonJS
-- The `config/` directory is gitignored and must be set up manually via `setup-config.sh`
+- `.env` is gitignored and must be created manually — there is no `.env.example` in the repo
 - OpenAI SDK is v5 — API surface differs from v3/v4 (uses `openai.chat.completions.create`)
-- System prompt lives in `src/api.js` inline — a commented alternate "argument mode" prompt is also there
+- System prompt lives in `src/util.js` (`defineSystemPrompt`) — a commented alternate "argument mode" prompt is also there
